@@ -25,10 +25,9 @@ namespace WebRocks.Requests
                 long length = webResponse.ContentLength;
                 response.ResponseCode = (int)webResponse.StatusCode;
 
-                if(response.ResponseCode >= 200 || response.ResponseCode < 300)
+                if (IsSuccess(response))
                 {
-                    response.RateLimitTotal = Int32.Parse(webResponse.Headers[RateLimitHeader]);
-                    response.RateLimitRemaining = Int32.Parse(webResponse.Headers[RateLimitRemainingHeader]);
+                    SetHeaders(response, webResponse);
 
                     using (var responseStream = webResponse.GetResponseStream())
                     {
@@ -43,9 +42,42 @@ namespace WebRocks.Requests
             return response;
         }
 
-        public Task<NeoResponse> SendGetRequestAsync(Uri uri)
+        public async Task<NeoResponse> SendGetRequestAsync(Uri uri)
         {
-            throw new NotImplementedException();
+            var webRequest = (HttpWebRequest)WebRequest.CreateHttp(uri);
+            var response = new NeoResponse();
+
+            using (var webResponse = (HttpWebResponse)(await webRequest.GetResponseAsync()))
+            {
+                long length = webResponse.ContentLength;
+                response.ResponseCode = (int)webResponse.StatusCode;
+
+                if(IsSuccess(response))
+                {
+                    SetHeaders(response, webResponse);
+
+                    using (var responseStream = webResponse.GetResponseStream())
+                    {
+                        using (var reader = new StreamReader(responseStream))
+                        {
+                            response.ResponseText = await reader.ReadToEndAsync();
+                        }
+                    }
+                }
+            }
+
+            return response;
+        }
+
+        private static bool IsSuccess(NeoResponse response)
+        {
+            return response.ResponseCode >= 200 || response.ResponseCode < 300;
+        }
+
+        private static void SetHeaders(NeoResponse response, HttpWebResponse webResponse)
+        {
+            response.RateLimitTotal = Int32.Parse(webResponse.Headers[RateLimitHeader]);
+            response.RateLimitRemaining = Int32.Parse(webResponse.Headers[RateLimitRemainingHeader]);
         }
     }
 }
