@@ -22,5 +22,10 @@ namespace WebRocks.Internal
         {
             return new Uri(baseUri, String.Format("feed?start_date={0:yyyy-MM-dd}&end_date={1:yyyy-MM-dd}&api_key={2}", startDate, endDate, apiKey));
         }
+
+        public static Uri ConstructNeowsStatsUri(this Uri baseUri, string apiKey)
+        {
+            return new Uri(baseUri, String.Format("stats?api_key={0}", apiKey));
+        }
     }
 }

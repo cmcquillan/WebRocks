@@ -60,6 +60,16 @@ namespace WebRocks
             return GetObjectFromResponse<NearEarthObject>(response, serializer);
         }
 
+        public NeoStats GetCurrentStats()
+        {
+            Uri requestUrl = Config.ApiUrl.ConstructNeowsStatsUri(Config.ApiKey);
+            var serializer = Serializers.NeoStats;
+
+            var response = RequestProvider.SendGetRequest(requestUrl);
+            SetRateLimits(response);
+            return GetObjectFromResponse<NeoStats>(response, serializer);
+        }
+
         private static T GetObjectFromResponse<T>(NeoResponse response, DataContractJsonSerializer serializer)
         {
             using (var ms = new MemoryStream(Encoding.UTF8.GetBytes(response.ResponseText)))

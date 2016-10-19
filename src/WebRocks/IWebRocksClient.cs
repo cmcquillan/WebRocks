@@ -15,5 +15,6 @@ namespace WebRocks
         ApiFeedPage GetFeedPage(DateTime startDate);
         ApiBrowsePage GetBrowsePage(int pageNumber, int pageSize);
         NearEarthObject GetObjectById(int id);
+        NeoStats GetCurrentStats();
     }
 }
